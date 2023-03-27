@@ -1,4 +1,4 @@
-public struct xcode_cloud_kit {
+public struct XcodeCloudKit {
     public private(set) var text = "Hello, World!"
 
     public init() {
