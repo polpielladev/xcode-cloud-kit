@@ -1,5 +1,7 @@
 public protocol XcodeCloudKit {
     func allProducts() async throws -> [Product]
+    func product(withName: String) async throws -> Product?
+    func product(fromRepository repository: String) async throws -> Product?
 }
 
 public struct DefaultXcodeCloudKit: XcodeCloudKit {
@@ -7,6 +9,18 @@ public struct DefaultXcodeCloudKit: XcodeCloudKit {
     
     init(client: AppStoreConnectAPIClient) {
         self.client = client
+    }
+    
+    public func product(withName name: String) async throws -> Product? {
+        let allProducts = try await allProducts()
+        
+        return allProducts.first(where: { $0.name == name })
+    }
+    
+    public func product(fromRepository repository: String) async throws -> Product? {
+        let allProducts = try await allProducts()
+        
+        return allProducts.first(where: { $0.repository.name == repository })
     }
     
     public func allProducts() async throws -> [Product] {
