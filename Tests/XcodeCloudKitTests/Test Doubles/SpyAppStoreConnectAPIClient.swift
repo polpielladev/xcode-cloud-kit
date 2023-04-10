@@ -17,4 +17,9 @@ class SpyAppStoreConnectAPIClient: AppStoreConnectAPIClient {
     func startWorkflow(with id: String, at gitReferenceId: String) async throws {
         capturedStartWorkflowCalls.append((id, gitReferenceId))
     }
+    
+    var workflowsResponseToReturn: WorkflowsResponse?
+    func allWorkflows(for productId: String) async throws -> WorkflowsResponse {
+        try XCTUnwrap(workflowsResponseToReturn)
+    }
 }

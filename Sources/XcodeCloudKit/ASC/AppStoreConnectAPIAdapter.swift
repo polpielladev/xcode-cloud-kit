@@ -49,4 +49,37 @@ class AppStoreConnectSDKAdapter: AppStoreConnectAPIClient {
         
         _ = try await appStoreConnectSDK.request(workflowRun)
     }
+    
+    func allWorkflows(for productId: String) async throws -> WorkflowsResponse {
+        let allWorkflowsEndpoint = APIEndpoint
+            .v1
+            .ciProducts
+            .id(productId)
+            .workflows
+        
+        let workflows = try await appStoreConnectSDK
+            .request(
+                Request<WorkflowsResponse>(
+                    method: "GET",
+                    path: allWorkflowsEndpoint.path,
+                    query: [("fields[ciWorkflows]", "name")]
+                )
+            )
+        
+        return workflows
+    }
 }
+
+struct WorkflowsResponse: Decodable {
+    let data: [Data]
+    
+    struct Data: Decodable {
+        let id: String
+        let attributes: Attributes
+        
+        struct Attributes: Decodable {
+            let name: String
+        }
+    }
+}
+
