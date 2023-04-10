@@ -136,4 +136,37 @@ final class XcodeCloudKitTests: XCTestCase {
         
         XCTAssertNil(product)
     }
+    
+    // MARK: - Product from repository
+    func test_GivenASCClientReturnsProductWithExpectedRepositoryInList_ThenProductIsReturned() async throws {
+        let client = MockAppStoreConnectAPIClient()
+        let sut = DefaultXcodeCloudKit(client: client)
+        let responseBuilder = MockProductsResponseBuilder()
+            .with(id: "product-id")
+            .with(name: "product-name")
+            .with(repositoryName: "repo-name", repositoryId: "repo-id")
+
+        client.productsResponseToReturn = responseBuilder.build()
+        
+        let product = try await sut.product(fromRepository: "repo-name")
+        
+        XCTAssertEqual(product?.id, "product-id")
+        XCTAssertEqual(product?.name, "product-name")
+        XCTAssertEqual(product?.repository.name, "repo-name")
+        XCTAssertEqual(product?.repository.id, "repo-id")
+    }
+    
+    func test_GivenASCClientProductResponseDoesNotReturnProductWithExpectedRepositoryInList_WhenXcodeCloudKitRequestsProduct_ThenProductIsNil() async throws {
+        let client = MockAppStoreConnectAPIClient()
+        let sut = DefaultXcodeCloudKit(client: client)
+        let responseBuilder = MockProductsResponseBuilder()
+            .with(id: "product-id")
+            .with(name: "product-name")
+            .with(repositoryName: "repo-name", repositoryId: "repo-id")
+        client.productsResponseToReturn = responseBuilder.build()
+        
+        let product = try await sut.product(fromRepository: "not-found")
+        
+        XCTAssertNil(product)
+    }
 }
