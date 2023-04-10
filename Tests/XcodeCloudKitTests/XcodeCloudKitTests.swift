@@ -7,6 +7,11 @@ class MockAppStoreConnectAPIClient: AppStoreConnectAPIClient {
     func allProducts() async throws -> CiProductsResponse {
         try XCTUnwrap(productsResponseToReturn)
     }
+    
+    var productResponseToReturn: CiProductResponse?
+    func product(id: String) async throws -> CiProductResponse {
+        try XCTUnwrap(productResponseToReturn)
+    }
 }
 
 final class XcodeCloudKitTests: XCTestCase {
@@ -51,5 +56,49 @@ final class XcodeCloudKitTests: XCTestCase {
         XCTAssertEqual(products[0].name, "product-name")
         XCTAssertEqual(products[0].repository.name, "repo-name")
         XCTAssertEqual(products[0].repository.id, "repo-id")
+    }
+    
+    func test_GivenASCClientReturnsProductByIdWithNoRepository_ThenProductIsNotReturned() async throws {
+        let client = MockAppStoreConnectAPIClient()
+        let sut = DefaultXcodeCloudKit(client: client)
+        let responseBuilder = MockProductResponseBuilder()
+            .with(id: "product-id")
+            .with(name: "product-name")
+
+        client.productResponseToReturn = responseBuilder.build()
+        let product = try await sut.product(withId: "product-id")
+        
+        XCTAssertNil(product)
+    }
+    
+    func test_GivenASCClientReturnsProductWithNoName_ThenProductIsNotReturned() async throws {
+        let client = MockAppStoreConnectAPIClient()
+        let sut = DefaultXcodeCloudKit(client: client)
+        let responseBuilder = MockProductResponseBuilder()
+            .with(id: "product-id")
+            .with(repositoryName: "repo-name", repositoryId: "repo-id")
+        client.productResponseToReturn = responseBuilder.build()
+        
+        let product = try await sut.product(withId: "product-id")
+        
+        XCTAssertNil(product)
+    }
+    
+    func test_GivenASCClientFindsProductById_ThenProductIsReturned() async throws {
+        let client = MockAppStoreConnectAPIClient()
+        let sut = DefaultXcodeCloudKit(client: client)
+        let responseBuilder = MockProductResponseBuilder()
+            .with(id: "product-id")
+            .with(name: "product-name")
+            .with(repositoryName: "repo-name", repositoryId: "repo-id")
+
+        client.productResponseToReturn = responseBuilder.build()
+        
+        let product = try await sut.product(withId: "product-id")
+        
+        XCTAssertEqual(product?.id, "product-id")
+        XCTAssertEqual(product?.name, "product-name")
+        XCTAssertEqual(product?.repository.name, "repo-name")
+        XCTAssertEqual(product?.repository.id, "repo-id")
     }
 }
