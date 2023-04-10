@@ -26,4 +26,27 @@ class AppStoreConnectSDKAdapter: AppStoreConnectAPIClient {
         
         return try await appStoreConnectSDK.request(productEndpoint)
     }
+    
+    func startWorkflow(with id: String, at gitReferenceId: String) async throws {
+        let requestRelationships = CiBuildRunCreateRequest
+            .Data
+            .Relationships(
+                workflow: .init(data: .init(type: .ciWorkflows, id: id)),
+                sourceBranchOrTag: .init(data: .init(type: .scmGitReferences, id: gitReferenceId))
+            )
+        
+         let requestData = CiBuildRunCreateRequest.Data(
+             type: .ciBuildRuns,
+             relationships: requestRelationships
+         )
+
+        let buildRunCreateRequest = CiBuildRunCreateRequest(data: requestData)
+
+        let workflowRun = APIEndpoint
+            .v1
+            .ciBuildRuns
+            .post(buildRunCreateRequest)
+        
+        _ = try await appStoreConnectSDK.request(workflowRun)
+    }
 }

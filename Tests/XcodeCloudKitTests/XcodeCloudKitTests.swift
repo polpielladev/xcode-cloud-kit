@@ -1,23 +1,10 @@
 import XCTest
 @testable import XcodeCloudKit
-import AppStoreConnect_Swift_SDK
-
-class MockAppStoreConnectAPIClient: AppStoreConnectAPIClient {
-    var productsResponseToReturn: CiProductsResponse?
-    func allProducts() async throws -> CiProductsResponse {
-        try XCTUnwrap(productsResponseToReturn)
-    }
-    
-    var productResponseToReturn: CiProductResponse?
-    func product(id: String) async throws -> CiProductResponse {
-        try XCTUnwrap(productResponseToReturn)
-    }
-}
 
 final class XcodeCloudKitTests: XCTestCase {
     // MARK: - All products
     func test_GivenASCClientReturnsProductWithNoRepository_ThenProductIsNotInTheArray() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductsResponseBuilder()
             .with(name: "product-name")
@@ -30,7 +17,7 @@ final class XcodeCloudKitTests: XCTestCase {
     }
     
     func test_GivenASCClientReturnsProductWithNoName_ThenProductIsNotInTheArray() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductsResponseBuilder()
             .with(repositoryName: "repo-name", repositoryId: "repo-id")
@@ -42,7 +29,7 @@ final class XcodeCloudKitTests: XCTestCase {
     }
     
     func test_GivenASCClientReturnsProductWithAllRequiredFields_ThenProductIsIncludedInTheArray() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductsResponseBuilder()
             .with(id: "product-id")
@@ -61,7 +48,7 @@ final class XcodeCloudKitTests: XCTestCase {
     
     // MARK: - Product by id
     func test_GivenASCClientReturnsProductByIdWithNoRepository_ThenProductIsNotReturned() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductResponseBuilder()
             .with(id: "product-id")
@@ -74,7 +61,7 @@ final class XcodeCloudKitTests: XCTestCase {
     }
     
     func test_GivenASCClientReturnsProductWithNoName_ThenProductIsNotReturned() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductResponseBuilder()
             .with(id: "product-id")
@@ -87,7 +74,7 @@ final class XcodeCloudKitTests: XCTestCase {
     }
     
     func test_GivenASCClientFindsProductById_ThenProductIsReturned() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductResponseBuilder()
             .with(id: "product-id")
@@ -106,7 +93,7 @@ final class XcodeCloudKitTests: XCTestCase {
     
     // MARK: - Product by name
     func test_GivenASCClientReturnsProductWithExpectedNameInList_ThenProductIsReturned() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductsResponseBuilder()
             .with(id: "product-id")
@@ -124,7 +111,7 @@ final class XcodeCloudKitTests: XCTestCase {
     }
     
     func test_GivenASCClientProductResponseDoesNotReturnProductWithName_WhenXcodeCloudKitRequestsProduct_ThenProductIsNil() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductsResponseBuilder()
             .with(id: "product-id")
@@ -139,7 +126,7 @@ final class XcodeCloudKitTests: XCTestCase {
     
     // MARK: - Product from repository
     func test_GivenASCClientReturnsProductWithExpectedRepositoryInList_ThenProductIsReturned() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductsResponseBuilder()
             .with(id: "product-id")
@@ -157,7 +144,7 @@ final class XcodeCloudKitTests: XCTestCase {
     }
     
     func test_GivenASCClientProductResponseDoesNotReturnProductWithExpectedRepositoryInList_WhenXcodeCloudKitRequestsProduct_ThenProductIsNil() async throws {
-        let client = MockAppStoreConnectAPIClient()
+        let client = SpyAppStoreConnectAPIClient()
         let sut = DefaultXcodeCloudKit(client: client)
         let responseBuilder = MockProductsResponseBuilder()
             .with(id: "product-id")
