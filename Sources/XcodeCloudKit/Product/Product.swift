@@ -3,6 +3,8 @@ public struct Product {
     let id: String
     let repository: Repository
     
+    let client: AppStoreConnectAPIClient
+    
     struct Repository {
         let id: String
         let name: String

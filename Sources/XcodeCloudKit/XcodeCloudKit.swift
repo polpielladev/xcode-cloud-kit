@@ -43,7 +43,7 @@ public struct DefaultXcodeCloudKit: XcodeCloudKit {
         
         if let repository = repositories.first(where: { product.relationships?.primaryRepositories?.data?.first?.id == $0.id }),
            let name = product.attributes?.name {
-            return Product(name: name, id: product.id, repository: .init(id: repository.id, name: repository.name))
+            return Product(name: name, id: product.id, repository: .init(id: repository.id, name: repository.name), client: client)
         } else {
             return nil
         }        
@@ -67,7 +67,7 @@ public struct DefaultXcodeCloudKit: XcodeCloudKit {
         return productResponse.data.compactMap { product in
             if let repository = repositories.first(where: { product.relationships?.primaryRepositories?.data?.first?.id == $0.id }),
                let name = product.attributes?.name {
-                return Product(name: name, id: product.id, repository: .init(id: repository.id, name: repository.name))
+                return Product(name: name, id: product.id, repository: .init(id: repository.id, name: repository.name), client: client)
             } else {
                 return nil
             }
