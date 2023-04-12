@@ -53,6 +53,16 @@ enum RequestBuilder {
         return .init(path: "GET", method: allWorkflowsEndpoint.path, queryParameters: [("fields[ciWorkflows]", "name")])
     }
     
+    static func workflow(with id: String) -> TransportRequest<CiWorkflowResponse> {
+        let workflow = APIEndpoint
+            .v1
+            .ciWorkflows
+            .id(id)
+            .get()
+        
+        return .init(path: workflow.path, method: workflow.method, queryParameters: workflow.query)
+    }
+    
     static func getMacosVersions() -> TransportRequest<CiMacOsVersionsResponse> {
         let endpoint = APIEndpoint
             .v1

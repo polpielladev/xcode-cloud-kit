@@ -9,7 +9,9 @@ extension Product: ProductInformationProviding {
         return allWorkflows.data.map { Workflow(id: $0.id, name: $0.attributes.name) }
     }
     
-    public func createWorkflow() async throws {
+    public func workflow(with id: String) async throws -> Workflow {
+        let workflow = try await client.perform(request: RequestBuilder.workflow(with: id))
         
+        return Workflow(id: workflow.data.id, name: workflow.data.attributes?.name ?? "")
     }
 }
