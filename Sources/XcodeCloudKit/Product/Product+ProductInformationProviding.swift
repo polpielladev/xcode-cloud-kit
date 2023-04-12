@@ -8,4 +8,8 @@ extension Product: ProductInformationProviding {
         
         return allWorkflows.data.map { Workflow(id: $0.id, name: $0.attributes.name) }
     }
+    
+    public func createWorkflow() async throws {
+        
+    }
 }

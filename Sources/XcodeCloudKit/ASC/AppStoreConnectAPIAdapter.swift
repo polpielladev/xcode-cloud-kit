@@ -62,6 +62,24 @@ enum RequestBuilder {
         
         return .init(path: "GET", method: allWorkflowsEndpoint.path, queryParameters: [("fields[ciWorkflows]", "name")])
     }
+    
+    static func getMacosVersions() -> TransportRequest<CiMacOsVersionsResponse> {
+        let endpoint = APIEndpoint
+            .v1
+            .ciMacOsVersions
+            .get(parameters: .init(fieldsCiMacOsVersions: [.name, .version]))
+        
+        return .init(path: endpoint.path, method: endpoint.method, queryParameters: endpoint.query)
+    }
+    
+    static func getXcodeVersions() -> TransportRequest<CiXcodeVersionsResponse> {
+        let endpoint = APIEndpoint
+            .v1
+            .ciXcodeVersions
+            .get(parameters: .init(fieldsCiXcodeVersions: [.version, .name, .macOsVersions]))
+        
+        return .init(path: endpoint.path, method: endpoint.method, queryParameters: endpoint.query)
+    }
 }
 
 class AppStoreConnectSDKAdapter: AuthenticatedTransport {
