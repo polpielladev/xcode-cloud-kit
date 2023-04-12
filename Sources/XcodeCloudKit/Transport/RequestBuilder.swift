@@ -1,15 +1,5 @@
 import AppStoreConnect_Swift_SDK
 
-struct TransportRequest<T: Decodable> {
-    let path: String
-    let method: String
-    let queryParameters: [(key: String, value: String?)]?
-}
-
-protocol AuthenticatedTransport {
-    func perform<T: Decodable>(request: TransportRequest<T>) async throws -> T
-}
-
 enum RequestBuilder {
     static func products() -> TransportRequest<CiProductsResponse> {
         let productsEndpoint = APIEndpoint
@@ -82,18 +72,6 @@ enum RequestBuilder {
     }
 }
 
-class AppStoreConnectSDKAdapter: AuthenticatedTransport {
-    private let appStoreConnectSDK: APIProvider
-    
-    init(appStoreConnectSDK: APIProvider) {
-        self.appStoreConnectSDK = appStoreConnectSDK
-    }
-    
-    func perform<T>(request: TransportRequest<T>) async throws -> T where T : Decodable {
-        return try await appStoreConnectSDK.request(Request<T>(method: request.method, path: request.path, query: request.queryParameters))
-    }
-}
-
 struct WorkflowsResponse: Decodable {
     let data: [Data]
     
@@ -106,4 +84,3 @@ struct WorkflowsResponse: Decodable {
         }
     }
 }
-
