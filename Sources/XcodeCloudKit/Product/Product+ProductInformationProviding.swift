@@ -14,4 +14,11 @@ extension Product: ProductInformationProviding {
         
         return Workflow(id: workflow.data.id, name: workflow.data.attributes?.name ?? "")
     }
+    
+    public func workflow(with name: String) async throws -> Workflow? {
+        try await client.perform(request: RequestBuilder.allWorkflows(for: id))
+            .data
+            .map { Workflow(id: $0.id, name: $0.attributes.name) }
+            .first(where: { $0.name == name })
+    }
 }
