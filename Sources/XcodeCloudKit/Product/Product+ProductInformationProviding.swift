@@ -1,10 +1,10 @@
 extension Product: ProductInformationProviding {
     public func startWorkflow(with id: String, at gitReferenceId: String) async throws {
-        try await client.startWorkflow(with: id, at: gitReferenceId)
+        _ = try await client.perform(request: RequestBuilder.triggerWorkflow(id: id, gitReferenceId: gitReferenceId))
     }
     
     public func workflows() async throws -> [Workflow] {
-        let allWorkflows = try await client.allWorkflows(for: id)
+        let allWorkflows = try await client.perform(request: RequestBuilder.allWorkflows(for: id))
         
         return allWorkflows.data.map { Workflow(id: $0.id, name: $0.attributes.name) }
     }

@@ -6,9 +6,9 @@ public protocol XcodeCloudKit {
 }
 
 public struct DefaultXcodeCloudKit: XcodeCloudKit {
-    private let client: AppStoreConnectAPIClient
+    private let client: AuthenticatedTransport
     
-    init(client: AppStoreConnectAPIClient) {
+    init(client: AuthenticatedTransport) {
         self.client = client
     }
     
@@ -25,7 +25,7 @@ public struct DefaultXcodeCloudKit: XcodeCloudKit {
     }
     
     public func product(withId id: String) async throws -> Product? {
-        let productResponse = try await client.product(id: id)
+        let productResponse = try await client.perform(request: RequestBuilder.product(with: id))
         
         let repositories: [(id: String, name: String)] = productResponse.included?.compactMap { includedItem in
             switch includedItem {
@@ -50,7 +50,7 @@ public struct DefaultXcodeCloudKit: XcodeCloudKit {
     }
     
     public func allProducts() async throws -> [Product] {
-        let productResponse = try await client.allProducts()
+        let productResponse = try await client.perform(request: RequestBuilder.products())
         
         let repositories: [(id: String, name: String)] = productResponse.included?.compactMap { includedItem in
             switch includedItem {

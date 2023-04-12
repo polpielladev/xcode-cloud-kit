@@ -3,7 +3,7 @@ public struct Product {
     let id: String
     let repository: Repository
     
-    let client: AppStoreConnectAPIClient
+    let client: AuthenticatedTransport
     
     struct Repository {
         let id: String

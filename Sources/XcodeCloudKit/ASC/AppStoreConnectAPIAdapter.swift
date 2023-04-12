@@ -1,33 +1,36 @@
 import AppStoreConnect_Swift_SDK
 
-class AppStoreConnectSDKAdapter: AppStoreConnectAPIClient {
-    private let appStoreConnectSDK: APIProvider
-    
-    init(appStoreConnectSDK: APIProvider) {
-        self.appStoreConnectSDK = appStoreConnectSDK
-    }
-    
-    func allProducts() async throws -> CiProductsResponse {
+struct TransportRequest<T: Decodable> {
+    let path: String
+    let method: String
+    let queryParameters: [(key: String, value: String?)]?
+}
+
+protocol AuthenticatedTransport {
+    func perform<T: Decodable>(request: TransportRequest<T>) async throws -> T
+}
+
+enum RequestBuilder {
+    static func products() -> TransportRequest<CiProductsResponse> {
         let productsEndpoint = APIEndpoint
             .v1
             .ciProducts
             .get(parameters: .init(include: [.primaryRepositories]))
-    
         
-        return try await appStoreConnectSDK.request(productsEndpoint)
+        return .init(path: productsEndpoint.path, method: productsEndpoint.method, queryParameters: productsEndpoint.query)
     }
     
-    func product(id: String) async throws -> CiProductResponse {
+    static func product(with id: String) -> TransportRequest<CiProductResponse> {
         let productEndpoint = APIEndpoint
             .v1
             .ciProducts
             .id(id)
             .get(parameters: .init(include: [.primaryRepositories]))
         
-        return try await appStoreConnectSDK.request(productEndpoint)
+        return .init(path: productEndpoint.path, method: productEndpoint.method, queryParameters: productEndpoint.query)
     }
     
-    func startWorkflow(with id: String, at gitReferenceId: String) async throws {
+    static func triggerWorkflow(id: String, gitReferenceId: String) -> TransportRequest<CiBuildRunResponse> {
         let requestRelationships = CiBuildRunCreateRequest
             .Data
             .Relationships(
@@ -47,26 +50,29 @@ class AppStoreConnectSDKAdapter: AppStoreConnectAPIClient {
             .ciBuildRuns
             .post(buildRunCreateRequest)
         
-        _ = try await appStoreConnectSDK.request(workflowRun)
+        return .init(path: workflowRun.path, method: workflowRun.method, queryParameters: workflowRun.query)
     }
     
-    func allWorkflows(for productId: String) async throws -> WorkflowsResponse {
+    static func allWorkflows(for productId: String) -> TransportRequest<WorkflowsResponse> {
         let allWorkflowsEndpoint = APIEndpoint
             .v1
             .ciProducts
             .id(productId)
             .workflows
         
-        let workflows = try await appStoreConnectSDK
-            .request(
-                Request<WorkflowsResponse>(
-                    method: "GET",
-                    path: allWorkflowsEndpoint.path,
-                    query: [("fields[ciWorkflows]", "name")]
-                )
-            )
-        
-        return workflows
+        return .init(path: "GET", method: allWorkflowsEndpoint.path, queryParameters: [("fields[ciWorkflows]", "name")])
+    }
+}
+
+class AppStoreConnectSDKAdapter: AuthenticatedTransport {
+    private let appStoreConnectSDK: APIProvider
+    
+    init(appStoreConnectSDK: APIProvider) {
+        self.appStoreConnectSDK = appStoreConnectSDK
+    }
+    
+    func perform<T>(request: TransportRequest<T>) async throws -> T where T : Decodable {
+        return try await appStoreConnectSDK.request(Request<T>(method: request.method, path: request.path, query: request.queryParameters))
     }
 }
 
