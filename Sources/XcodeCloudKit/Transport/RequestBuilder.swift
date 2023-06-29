@@ -80,6 +80,17 @@ enum RequestBuilder {
         
         return .init(path: endpoint.path, method: endpoint.method, queryParameters: endpoint.query)
     }
+    
+    static func allBuilds(for workflowId: String) -> TransportRequest<CiBuildRunsResponse> {
+        let endpoint = APIEndpoint
+            .v1
+            .ciWorkflows
+            .id(workflowId)
+            .buildRuns
+            .get()
+        
+        return .init(path: endpoint.path, method: endpoint.method, queryParameters: endpoint.query)
+    }
 }
 
 struct WorkflowsResponse: Decodable {

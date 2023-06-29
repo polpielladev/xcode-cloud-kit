@@ -6,19 +6,19 @@ extension Product: ProductInformationProviding {
     public func workflows() async throws -> [Workflow] {
         let allWorkflows = try await client.perform(request: RequestBuilder.allWorkflows(for: id))
         
-        return allWorkflows.data.map { Workflow(id: $0.id, name: $0.attributes.name) }
+        return allWorkflows.data.map { Workflow(id: $0.id, name: $0.attributes.name, client: client) }
     }
     
     public func workflow(with id: String) async throws -> Workflow {
         let workflow = try await client.perform(request: RequestBuilder.workflow(with: id))
         
-        return Workflow(id: workflow.data.id, name: workflow.data.attributes?.name ?? "")
+        return Workflow(id: workflow.data.id, name: workflow.data.attributes?.name ?? "", client: client)
     }
     
     public func workflow(with name: String) async throws -> Workflow? {
         try await client.perform(request: RequestBuilder.allWorkflows(for: id))
             .data
-            .map { Workflow(id: $0.id, name: $0.attributes.name) }
+            .map { Workflow(id: $0.id, name: $0.attributes.name, client: client) }
             .first(where: { $0.name == name })
     }
 }
